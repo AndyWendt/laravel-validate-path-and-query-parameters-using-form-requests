@@ -25,6 +25,7 @@ class PostUpdateRequest extends FormRequest
     {
         return [
             'post_id' => 'required|exists:posts,id',
+            'include' => 'sometimes|numeric|nullable',
             'name' => 'required|string',
         ];
     }
@@ -33,6 +34,7 @@ class PostUpdateRequest extends FormRequest
     {
         $data = parent::all();
         $data['post_id'] = $this->route('postId');
+        $data['include'] = $this->query('include');
         return $data;
     }
 }

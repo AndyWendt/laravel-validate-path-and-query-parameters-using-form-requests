@@ -20,9 +20,7 @@ class PostTest extends TestCase
     public function it_allows_you_to_replace_a_post()
     {
         // Arrange
-        $post = Post::create([
-            'name' => 'foobar'
-        ]);
+        $post = Post::create(['name' => 'foobar']);
 
         // Act
         $response = $this->putJson(sprintf('/api/posts/%s', $post->id), [
@@ -32,6 +30,7 @@ class PostTest extends TestCase
         // Assert
         $response->assertStatus(200);
         $this->assertDatabaseHas('posts', ['name' => 'fizzbuzz']);
+        $this->assertDatabaseMissing('posts', ['name' => 'foobar']);
     }
 
     /**
@@ -40,9 +39,7 @@ class PostTest extends TestCase
     public function it_fails_validation_if_the_post_id_is_incorrect()
     {
         // Arrange
-        Post::create([
-            'name' => 'foobar'
-        ]);
+        Post::create(['name' => 'foobar']);
 
         // Act
         $response = $this->putJson(sprintf('/api/posts/%s', 235435), [
@@ -54,5 +51,44 @@ class PostTest extends TestCase
         $response->assertJsonFragment(['post_id' => ['The selected post id is invalid.']]);
         $this->assertDatabaseHas('posts', ['name' => 'foobar']);
         $this->assertDatabaseMissing('posts', ['name' => 'fizzbuzz']);
+    }
+
+    /**
+     * @test
+     */
+    public function it_fails_validation_if_a_query_parameter_is_incorrect()
+    {
+        // Arrange
+        $post = Post::create(['name' => 'foobar']);
+
+        // Act
+        $response = $this->putJson(sprintf('/api/posts/%s?include=adfasdf', $post->id), [
+            'name' => 'fizzbuzz',
+        ]);
+
+        // Assert
+        $response->assertStatus(422);
+        $response->assertJsonFragment(['include' => ['The include must be a number.']]);
+        $this->assertDatabaseHas('posts', ['name' => 'foobar']);
+        $this->assertDatabaseMissing('posts', ['name' => 'fizzbuzz']);
+    }
+
+    /**
+     * @test
+     */
+    public function it_allows_a_valid_include_query_paramter()
+    {
+        // Arrange
+        $post = Post::create(['name' => 'foobar']);
+
+        // Act
+        $response = $this->putJson(sprintf('/api/posts/%s?include=1234', $post->id), [
+            'name' => 'fizzbuzz',
+        ]);
+
+        // Assert
+        $response->assertStatus(200);
+        $this->assertDatabaseHas('posts', ['name' => 'fizzbuzz']);
+        $this->assertDatabaseMissing('posts', ['name' => 'foobar']);
     }
 }
