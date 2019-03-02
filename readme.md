@@ -20,4 +20,19 @@ public function rules()
         'name' => 'required|string',
     ];
 }
+
+public function all($keys = null)
+{
+    $data = parent::all();
+
+    foreach ($this->routeParametersToValidate as $validationDataKey => $routeParameter) {
+        $data[$validationDataKey] = $this->route($routeParameter);
+    }
+
+    foreach ($this->queryParametersToValidate as $validationDataKey => $queryParameter) {
+        $data[$validationDataKey] = $this->query($queryParameter);
+    }
+
+    return $data;
+}
 ```
