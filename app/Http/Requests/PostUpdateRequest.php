@@ -4,8 +4,10 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class PostUpdateRequest extends FormRequest
+class PostUpdateRequest extends AbstractRequest
 {
+    protected $routeParametersToValidate = ['post_id' => 'postId'];
+    protected $queryParametersToValidate = ['include' => 'include'];
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -28,13 +30,5 @@ class PostUpdateRequest extends FormRequest
             'include' => 'sometimes|numeric|nullable',
             'name' => 'required|string',
         ];
-    }
-
-    public function all($keys = null)
-    {
-        $data = parent::all();
-        $data['post_id'] = $this->route('postId');
-        $data['include'] = $this->query('include');
-        return $data;
     }
 }
