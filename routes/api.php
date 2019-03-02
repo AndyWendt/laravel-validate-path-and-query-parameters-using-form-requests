@@ -16,3 +16,11 @@ use Illuminate\Http\Request;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::put('posts/{postId}', function (\App\Http\Requests\PostUpdateRequest $request, $postId) {
+    $payload = $request->all();
+    $post = \App\Post::find($postId);
+    $post->name = $payload['name'];
+    $post->save();
+    return $post;
+});
