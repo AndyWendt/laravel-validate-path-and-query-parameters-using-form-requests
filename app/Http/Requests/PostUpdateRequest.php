@@ -24,7 +24,15 @@ class PostUpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'post_id' => 'required|exists:posts,id',
+            'name' => 'required|string',
         ];
+    }
+
+    public function all($keys = null)
+    {
+        $data = parent::all();
+        $data['post_id'] = $this->route('postId');
+        return $data;
     }
 }
